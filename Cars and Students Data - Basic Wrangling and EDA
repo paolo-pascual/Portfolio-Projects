@@ -1,15 +1,4 @@
-
-# MEMBER
-# Bautista, Rampel Jade R.
-# Catacutan, Emiel H.
-# Mercurio, Genesis D.
-# Pascual, Christian Paolo M.
-
-
-
-
-
-
+## PART 1: CARS DATA
 
 ## TASK 1: Read cars_part1.csv and cars_part2.csv into tibble objects.
 
@@ -96,6 +85,87 @@ res <-  split(carsall, g)
 sub1 <- res$twenty 
 sub2 <- res$thirty
 sub3 <- res$fifty 
+
+
+## PART 2: STUDENTS' DATA
+
+## Create a data frame by reading the file “student grades.csv”
+
+studgrade <- read.csv("student_grades.csv",
+                      header = T,
+                      row.names = 1,
+                      na.strings = "---",
+                      colClasses = c("character", "factor", rep("numeric", 3)))
+
+
+str(studgrade)
+
+
+## Remove all observations with missing grades in “Project”
+
+library(tidyverse)
+
+studgrade2 <- studgrade %>% drop_na(Project)
+
+
+## Change the variable name of “Project” to “Research”
+
+colnames(studgrade2)[4] <- "Research"
+
+
+## Compute the final grade of the student under two possibilities.
+
+
+finalgrade <-
+studgrade2 %>% mutate(finalgradeC1 = 0.5*LongExam +
+                                     0.2*Quiz +
+                                     0.3*Research,
+                      finalgradeC2 = 0.3*LongExam +
+                                     0.2*Quiz +
+                                     0.5*Research,
+                      sum = finalgradeC1 + finalgradeC2)
+
+
+## Use vector operations to calculate final grades.
+
+0.5*studgrade2$LongExam + 0.2*studgrade2$Quiz + 0.3*studgrade2$Research
+0.3*studgrade2$LongExam + 0.2*studgrade2$Quiz +0.5*studgrade2$Research
+
+
+## Use matrix operations to calculate final grades.
+
+weight1 <- matrix(c(0.5, 0.2, 0.3), nrow = 3, ncol = 1)
+weight2 <- matrix(c(0.3, 0.2, 0.5), nrow = 3, ncol = 1)
+
+rawgrades <- studgrade2 %>% 
+  select("LongExam", "Quiz", "Research") %>% 
+  as.matrix()
+
+rawgrades %*% weight1 %>% View()
+rawgrades %*% weight2 %>% View()
+
+
+# Subset the TOP 5 students
+
+finalgrade %>%
+  select(-c(finalgradeC2,sum)) %>%
+  arrange(desc(finalgradeC1)) %>%
+  head(5) %>%
+  View()
+
+
+finalgrade %>%
+  select(-c(finalgradeC1,sum)) %>%
+  arrange(desc(finalgradeC2)) %>%
+  head(5) %>%
+  View()
+
+
+# Subset all students who will get a higher final grade in case 2 as compared with case 1.
+
+finalgrade %>%
+  filter(finalgradeC2 > finalgradeC1) %>%
+  View()
 
 
 
